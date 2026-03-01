@@ -6,6 +6,16 @@ AI-powered Chrome extension that replaces distracting ads with educational tips 
 
 [![Download Attention Guardian](https://img.shields.io/badge/Download-Extension-blue?style=for-the-badge&logo=googlechrome)](https://github.com/SaiKarthik29/AttentionGuardian-AI/releases/latest)
 
+
+## 🧑‍💻 Who should use which method?
+
+**Option 1 — Quick Install (non-developers)**  
+👉 Just want to use the extension  
+→ Download ZIP and load in Chrome  
+
+**Option 2 — Full Setup (developers)**  
+👉 Want AI tips + quiz + dashboard  
+→ Clone repo and run AI server
 ---
 
 ## Install in Chrome
