@@ -7,12 +7,12 @@
   "permissions": ["storage"],
 
   "host_permissions": [
-    "*://*.youtube.com/*",
-    "*://*.geeksforgeeks.org/*",
-    "*://*.w3schools.com/*",
-    "*://*.javatpoint.com/*",
-    "http://localhost/*",
-    "http://127.0.0.1/*"
+     "*://*.youtube.com/*",
+  "*://*.geeksforgeeks.org/*",
+  "*://*.w3schools.com/*",
+  "*://*.javatpoint.com/*",
+  "http://localhost:3000/*",
+  "http://127.0.0.1:3000/*"
   ],
 
   "icons": {
@@ -33,12 +33,12 @@
   "content_scripts": [
     {
       "matches": [
-        "*://*.youtube.com/*",
-        "*://*.geeksforgeeks.org/*",
-        "*://*.w3schools.com/*",
-        "*://*.javatpoint.com/*",
-        "http://localhost/*",
-        "http://127.0.0.1/*"
+       "*://*.youtube.com/*",
+      "*://*.geeksforgeeks.org/*",
+      "*://*.w3schools.com/*",
+      "*://*.javatpoint.com/*",
+      "http://localhost:3000/*",
+      "http://127.0.0.1:3000/*"
       ],
       "js": ["content.js"],
       "run_at": "document_idle"
