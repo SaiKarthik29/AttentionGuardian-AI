@@ -185,16 +185,33 @@ async function createStudyCard() {
 
   let selectedTip = "Loading AI tip...";
 
-  try {
-    const res = await fetch(
-  `http://localhost:5000/tip?topic=${topic}&concept=${concept || ""}`
-);
+let selectedTip = "Loading AI tip...";
 
-    const data = await res.json();
-    if (data.tip) selectedTip = data.tip;
-  } catch (e) {
-    selectedTip = "AI tip unavailable.";
+try {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 15000); // wait 15s
+
+  const res = await fetch(
+    `https://attentionguardian-ai.onrender.com/tip?topic=${topic}&concept=${concept || ""}`,
+    { signal: controller.signal }
+  );
+
+  clearTimeout(timeout);
+
+  const data = await res.json();
+
+  if (data && data.tip) {
+    selectedTip = data.tip;
+  } else {
+    selectedTip = "Practice coding consistently.";
   }
+
+} catch (e) {
+  console.log("AG tip fetch delayed:", e?.name);
+
+  // graceful fallback
+  selectedTip = "Practice coding consistently.";
+}
 
   const card = document.createElement("div");
 
