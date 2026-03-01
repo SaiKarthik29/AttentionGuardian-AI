@@ -2,18 +2,17 @@ import express from "express";
 import cors from "cors";
 import fetch from "node-fetch";
 import dotenv from "dotenv";
+
 dotenv.config();
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-// ✅ Your OpenRouter key
-
 const OPENROUTER_KEY = process.env.OPENROUTER_KEY;
 
 // =============================
-// AI TIP ENDPOINT (STABLE)
+// AI TIP ENDPOINT
 // =============================
 app.get("/tip", async (req, res) => {
   try {
@@ -21,7 +20,6 @@ app.get("/tip", async (req, res) => {
 
     console.log("TIP REQUEST:", topic, concept);
 
-    // ✅ strong contextual prompt (this was the working one)
     const prompt = `
 You are a coding tutor.
 
@@ -43,9 +41,7 @@ Return ONLY the tip sentence.
         },
         body: JSON.stringify({
           model: "openai/gpt-4o-mini",
-          messages: [
-            { role: "user", content: prompt }
-          ],
+          messages: [{ role: "user", content: prompt }],
           max_tokens: 40
         })
       }
@@ -67,8 +63,6 @@ Return ONLY the tip sentence.
   }
 });
 
-const PORT = process.env.PORT || 5000;
-
-app.listen(PORT, () => {
-  console.log("AI server running on port", PORT);
+app.listen(5000, () => {
+  console.log("AI server running on http://localhost:5000");
 });
