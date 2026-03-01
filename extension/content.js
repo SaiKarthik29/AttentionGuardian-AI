@@ -414,8 +414,6 @@ window.addEventListener("message", (event) => {
 
 
 
-
-
 /* ===============================
    ROBUST YOUTUBE AD DETECTOR
 =============================== */
@@ -423,36 +421,48 @@ window.addEventListener("message", (event) => {
 let agQuizOverlay = null;
 let agAdActive = false;
 let agObserverStarted = false;
+let agQuizInterval = null;
 
 function isYouTubeAdPlaying() {
-  // multiple reliable signals
-  const adClass =
+  return !!(
     document.querySelector(".ad-showing") ||
     document.querySelector(".ytp-ad-player-overlay") ||
     document.querySelector(".ytp-ad-overlay-container") ||
-    document.querySelector(".ytp-ad-text");
-
-  return !!adClass;
+    document.querySelector(".ytp-ad-text")
+  );
 }
 
 function detectYouTubeVideoAd() {
   const adNow = isYouTubeAdPlaying();
 
+  // ---------- AD START ----------
   if (adNow && !agAdActive) {
     agAdActive = true;
     console.log("AG: Ad started");
 
-    setTimeout(() => {
+    showQuizOverlay();
+
+    // long ads → multiple quizzes
+    agQuizInterval = setInterval(() => {
       if (isYouTubeAdPlaying()) {
+        console.log("AG: Next quiz in same ad");
+        removeQuizOverlay();
         showQuizOverlay();
       }
-    }, 300);
+    }, 15000);
   }
 
+  // ---------- AD END ----------
   if (!adNow && agAdActive) {
     agAdActive = false;
     console.log("AG: Ad ended");
+
     removeQuizOverlay();
+
+    if (agQuizInterval) {
+      clearInterval(agQuizInterval);
+      agQuizInterval = null;
+    }
   }
 }
 
@@ -479,58 +489,42 @@ function initYouTubeAdObserver() {
 
 setInterval(initYouTubeAdObserver, 1500);
 
+
 /* ===============================
-   AI QUIZ FETCH
+   AI QUIZ FETCH (LOCAL SERVER + RANDOM DIFFICULTY)
 =============================== */
 
 async function fetchAIQuiz() {
   try {
-    const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Authorization": "Bearer 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",
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        model: "openai/gpt-4o-mini",
-        messages: [
-          {
-            role: "system",
-            content: "You generate short DSA multiple choice quizzes."
-          },
-          {
-            role: "user",
-            content: `
-Generate 1 DSA MCQ.
+    const difficulties = ["easy", "medium", "hard"];
+    const difficulty =
+      difficulties[Math.floor(Math.random() * difficulties.length)];
 
-Return STRICT JSON:
-{
- "question": "...",
- "options": ["A","B","C","D"],
- "answerIndex": 0,
- "explanation": "..."
-}
-`
-          }
-        ],
-        max_tokens: 150
-      })
-    });
+    const topics = [
+      "arrays",
+      "linked list",
+      "stack",
+      "queue",
+      "binary tree",
+      "graph",
+      "sorting",
+      "recursion",
+      "dynamic programming",
+      "hashing"
+    ];
+
+    const randomTopic =
+      topics[Math.floor(Math.random() * topics.length)];
+
+    const res = await fetch(
+      `http://localhost:5000/quiz?topic=${randomTopic}&difficulty=${difficulty}`
+    );
 
     const data = await res.json();
 
-    // AI text → JSON
-    const text = data.choices?.[0]?.message?.content;
+    if (!data || !data.question) return null;
 
-    if (!text) return null;
-
-    try {
-      return JSON.parse(text);
-    } catch {
-      console.log("AG quiz parse fail:", text);
-      return null;
-    }
-
+    return data;
   } catch (e) {
     console.log("AG quiz fetch failed:", e);
     return null;
@@ -538,15 +532,9 @@ Return STRICT JSON:
 }
 
 
-
-
-
-
 /* ===============================
    QUIZ OVERLAY (FULL VIDEO COVER)
 =============================== */
-
-
 
 async function showQuizOverlay() {
   if (agQuizOverlay) return;
@@ -554,45 +542,38 @@ async function showQuizOverlay() {
   const player = document.querySelector("#movie_player");
   if (!player) return;
 
-  // ---------- FULLSCREEN OVERLAY ----------
   agQuizOverlay = document.createElement("div");
-  agQuizOverlay.id = "ag-quiz-overlay";
 
- Object.assign(agQuizOverlay.style, {
-  position: "absolute",
-  top: "0",
-  left: "0",
-  width: "100%",
-  height: "100%",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  background: "rgba(0,0,0,0.55)",
-  zIndex: "999999",
+  Object.assign(agQuizOverlay.style, {
+    position: "absolute",
+    top: "0",
+    left: "0",
+    width: "100%",
+    height: "100%",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    background: "rgba(0,0,0,0.55)",
+    zIndex: "999999",
+    pointerEvents: "none"
+  });
 
-  // ⭐ IMPORTANT
-  pointerEvents: "none"
-});
-
-  // ---------- MODAL ----------
   const modal = document.createElement("div");
 
   Object.assign(modal.style, {
-  width: "70%",
-  maxWidth: "720px",
-  maxHeight: "80%",
-  overflowY: "auto",
-  background: "rgba(11,18,32,0.98)",
-  color: "white",
-  padding: "28px",
-  borderRadius: "16px",
-  boxShadow: "0 20px 60px rgba(0,0,0,0.7)",
-  fontFamily: "Arial, sans-serif",
-  textAlign: "center",
-
-  // ⭐ clickable only inside quiz
-  pointerEvents: "auto"
-});
+    width: "70%",
+    maxWidth: "720px",
+    maxHeight: "80%",
+    overflowY: "auto",
+    background: "rgba(11,18,32,0.98)",
+    color: "white",
+    padding: "28px",
+    borderRadius: "16px",
+    boxShadow: "0 20px 60px rgba(0,0,0,0.7)",
+    fontFamily: "Arial",
+    textAlign: "center",
+    pointerEvents: "auto"
+  });
 
   modal.innerHTML = `
     <div style="font-size:22px;font-weight:600;margin-bottom:14px;">
@@ -604,15 +585,7 @@ async function showQuizOverlay() {
   agQuizOverlay.appendChild(modal);
   player.appendChild(agQuizOverlay);
 
-  // ---------- FETCH QUIZ ----------
-  let quiz = null;
-  try {
-    quiz = await fetchAIQuiz();
-  } catch (e) {
-    console.log("AG quiz fetch error", e);
-  }
-
-  if (!agQuizOverlay) return;
+  let quiz = await fetchAIQuiz();
 
   const question =
     quiz?.question ||
@@ -628,7 +601,6 @@ async function showQuizOverlay() {
     quiz?.explanation ||
     "Binary Search halves the search space each step → O(log n)";
 
-  // ---------- RENDER QUIZ ----------
   modal.innerHTML = `
     <div style="font-size:22px;font-weight:600;margin-bottom:14px;">
       Quick DSA Quiz
@@ -652,7 +624,6 @@ async function showQuizOverlay() {
     </div>
   `;
 
-  // ---------- CLICK HANDLING ----------
   modal.querySelectorAll(".ag-option").forEach(opt => {
     opt.addEventListener("click", () => {
       const isCorrect = opt.dataset.correct === "true";
@@ -662,13 +633,13 @@ async function showQuizOverlay() {
         o.style.opacity = "0.6";
       });
 
-      if (isCorrect) {
-        opt.style.background = "rgba(34,197,94,0.25)";
-        opt.style.border = "1px solid #22c55e";
-      } else {
-        opt.style.background = "rgba(239,68,68,0.25)";
-        opt.style.border = "1px solid #ef4444";
-      }
+      opt.style.background = isCorrect
+        ? "rgba(34,197,94,0.25)"
+        : "rgba(239,68,68,0.25)";
+
+      opt.style.border = isCorrect
+        ? "1px solid #22c55e"
+        : "1px solid #ef4444";
 
       const exp = modal.querySelector("#ag-explanation");
       if (exp) exp.style.display = "block";
