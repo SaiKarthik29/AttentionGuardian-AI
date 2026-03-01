@@ -9,38 +9,53 @@ console.log("AG content script loaded");
 
 
 function updateStats(topic, tipText) {
-  try {
-    if (!chrome || !chrome.runtime || !chrome.storage?.local) return;
+  if (!chrome?.storage?.local) return;
 
-    chrome.storage.local.get(
-      ["ag_stats", "ag_recentTips", "ag_lastReset"],
-      (res) => {
-        if (chrome.runtime.lastError) return;
+  chrome.storage.local.get(
+    ["ag_stats", "ag_recentTips", "ag_lastReset"],
+    (res) => {
+      const today = new Date().toDateString();
 
-        const today = new Date().toDateString();
+      let stats = res.ag_stats || {
+        adsBlockedToday: 0,
+        cardsSeen: 0,
+        topics: {}
+      };
 
-        let stats = res.ag_stats || {
-          adsBlockedToday: 0,
-          cardsSeen: 0,
-          topics: {}
-        };
+      // ✅ ensure fields exist
+      stats.adsBlockedToday = stats.adsBlockedToday || 0;
+      stats.cardsSeen = stats.cardsSeen || 0;
+      stats.topics = stats.topics || {};
 
-        stats.cardsSeen = (stats.cardsSeen || 0) + 1;
+      let tips = res.ag_recentTips || [];
+      const lastReset = res.ag_lastReset;
 
-        if (topic) {
-          stats.topics = stats.topics || {};
-          stats.topics[topic] = (stats.topics[topic] || 0) + 1;
-        }
-
-        chrome.storage.local.set({ ag_stats: stats });
+      // ✅ DAILY RESET
+      if (lastReset !== today) {
+        stats.adsBlockedToday = 0;
       }
-    );
-  } catch (e) {
-    console.log("AG stats skipped (context reload)");
-  }
+
+      // ✅ increment
+      stats.adsBlockedToday += 1;
+      stats.cardsSeen += 1;
+
+      if (topic) {
+        stats.topics[topic] = (stats.topics[topic] || 0) + 1;
+      }
+
+      if (tipText) {
+        tips.unshift(tipText);
+        tips = tips.slice(0, 10);
+      }
+
+      chrome.storage.local.set({
+        ag_stats: stats,
+        ag_recentTips: tips,
+        ag_lastReset: today
+      });
+    }
+  );
 }
-
-
 
 // ===============================
 // TOPIC DETECTION
@@ -350,37 +365,46 @@ initObserver();
 
 
 
-
 // ===============================
 // DASHBOARD BRIDGE (React ↔ Extension)
 // ===============================
 
-window.addEventListener("message", async (event) => {
+window.addEventListener("message", (event) => {
   if (event.source !== window) return;
-  if (event.data.type !== "GET_AG_STATS") return;
+  if (event.data?.type !== "GET_AG_STATS") return;
 
-  const data = await chrome.storage.local.get([
-    "ag_stats",
-    "ag_recentTips"
-  ]);
-
-  window.postMessage(
-    {
+  if (!chrome?.storage?.local) {
+    window.postMessage({
       type: "AG_STATS_RESPONSE",
-      data: {
-        ...(data.ag_stats || {
-          adsBlockedToday: 0,
-          cardsSeen: 0,
-          topics: {}
-        }),
-        tips: data.ag_recentTips || []
-      }
-    },
-    "*"
+      data: {}
+    }, "*");
+    return;
+  }
+
+  chrome.storage.local.get(
+    ["ag_stats", "ag_recentTips"],
+    (res) => {
+      const stats = res.ag_stats || {
+        adsBlockedToday: 0,
+        cardsSeen: 0,
+        topics: {}
+      };
+
+      const tips = res.ag_recentTips || [];
+
+      window.postMessage(
+        {
+          type: "AG_STATS_RESPONSE",
+          data: {
+            ...stats,
+            tips
+          }
+        },
+        "*"
+      );
+    }
   );
 });
-
-
 
 
 
