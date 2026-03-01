@@ -1,6 +1,7 @@
 # 🛡️ Attention Guardian AI
 
-AI-powered Chrome extension that replaces distracting ads with educational tips and quizzes.
+AI-powered Chrome extension that replaces distracting ads with educational tips and quizzes.  
+**Turn online distractions into micro-learning moments.**
 
 ---
 
@@ -22,7 +23,7 @@ AI-powered Chrome extension that replaces distracting ads with educational tips 
 
 ---
 
-## 🧩 Install in Chrome
+## 🧩 Install in Chrome (Quick Install)
 
 1. Download the ZIP from the button above  
 2. Extract it  
@@ -31,6 +32,8 @@ AI-powered Chrome extension that replaces distracting ads with educational tips 
 5. Click **Load unpacked**  
 6. Select the extracted **extension** folder  
 
+Extension will appear in Chrome toolbar.
+
 ---
 
 ## 🛡️ About Attention Guardian AI
@@ -38,16 +41,17 @@ AI-powered Chrome extension that replaces distracting ads with educational tips 
 **Attention Guardian AI** is a productivity Chrome Extension that replaces distracting advertisements on learning websites with AI-generated study tips and interactive quizzes.  
 
 It helps users stay focused while browsing educational content by turning distractions into micro-learning moments.
+
 ---
 
-# ✨ Features
+## ✨ Features
 
-* 🚫 Replaces ads with educational AI tips
-* 🧠 Context‑aware tips based on page topic
-* 🎯 AI quiz overlay during YouTube ads
-* 📊 React dashboard for usage statistics
-* ⚡ Fast local AI server (Node.js)
-* 🔒 Privacy‑friendly (runs locally)
+- 🚫 Replaces ads with educational AI tips  
+- 🧠 Context-aware tips based on page topic  
+- 🎯 AI quiz overlay during YouTube ads  
+- 📊 React dashboard for usage statistics  
+- ⚡ Fast local AI server (Node.js)  
+- 🔒 Privacy-friendly (runs locally)  
 
 ---
 
