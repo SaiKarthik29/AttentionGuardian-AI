@@ -179,38 +179,90 @@ const aiTips = {
 
 // updated one 
 
+// async function createStudyCard() {
+//   const topic = getTopic();
+//   const concept = detectAIConcept() || getConcept();
+
+// let selectedTip = "Loading AI tip...";
+
+// try {
+//   const controller = new AbortController();
+//   const timeout = setTimeout(() => controller.abort(), 45000); // wait 15s
+
+//   const url = `https://attentionguardian-ai.onrender.com/tip?topic=${topic}${
+//   concept ? `&concept=${concept}` : ""
+// }`;
+
+// const res = await fetch(url, { signal: controller.signal });
+
+//   clearTimeout(timeout);
+
+//   const data = await res.json();
+
+//   if (data && data.tip) {
+//     selectedTip = data.tip;
+//   } else {
+//     selectedTip = "Practice coding consistently.";
+//   }
+
+// } catch (e) {
+//   console.log("AG tip fetch delayed:", e?.name);
+
+//   // graceful fallback
+//   selectedTip = "Practice coding consistently.";
+// }
+
+//   const card = document.createElement("div");
+
+//   card.style.width = "100%";
+//   card.style.maxWidth = "300px";
+//   card.style.background = "#0b1220";
+//   card.style.color = "#e5e7eb";
+//   card.style.borderRadius = "10px";
+//   card.style.padding = "14px";
+//   card.style.margin = "8px auto";
+//   card.style.boxShadow = "0 4px 14px rgba(0,0,0,0.25)";
+//   card.style.fontFamily = "Arial";
+//   card.style.textAlign = "center";
+
+//   card.innerHTML = `
+//     <div style="color:#22c55e;font-weight:600;margin-bottom:6px">
+//       Study Tip
+//     </div>
+//     <div style="font-size:13px;line-height:1.4">
+//       ${selectedTip}
+//     </div>
+//   `;
+
+//   return {
+//     card,
+//     topic,
+//     tip: selectedTip   // ✅ correct
+//   };
+// }
+
 async function createStudyCard() {
   const topic = getTopic();
   const concept = detectAIConcept() || getConcept();
 
-let selectedTip = "Loading AI tip...";
+  let selectedTip = "Practice coding consistently.";
 
-try {
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 15000); // wait 15s
+  try {
+    const url = `https://attentionguardian-ai.onrender.com/tip?topic=${topic}${
+      concept ? `&concept=${concept}` : ""
+    }`;
 
-  const res = await fetch(
-    `https://attentionguardian-ai.onrender.com/tip?topic=${topic}&concept=${concept || ""}`,
-    { signal: controller.signal }
-  );
+    const res = await fetch(url);
+    const data = await res.json();
 
-  clearTimeout(timeout);
-
-  const data = await res.json();
-
-  if (data && data.tip) {
-    selectedTip = data.tip;
-  } else {
-    selectedTip = "Practice coding consistently.";
+    if (data && data.tip) {
+      selectedTip = data.tip;
+    }
+  } catch (e) {
+    console.log("AG tip fetch error:", e);
   }
 
-} catch (e) {
-  console.log("AG tip fetch delayed:", e?.name);
-
-  // graceful fallback
-  selectedTip = "Practice coding consistently.";
-}
-
+  // ⭐ CARD CREATED AFTER FETCH COMPLETE
   const card = document.createElement("div");
 
   card.style.width = "100%";
@@ -236,15 +288,13 @@ try {
   return {
     card,
     topic,
-    tip: selectedTip   // ✅ correct
+    tip: selectedTip
   };
 }
 
-
-
-// ===============================
-// REPLACE AD (ASYNC SAFE)
-// ===============================
+// // ===============================
+// // REPLACE AD (ASYNC SAFE)
+// // ===============================
 
 
 
@@ -270,6 +320,8 @@ async function replaceAd(ad) {
   // ⭐ SAVE STATS HERE
   updateStats(cardData.topic, cardData.tip);
 }
+
+
 
 
 
@@ -396,10 +448,6 @@ window.addEventListener("message", async (event) => {
     "*"
   );
 });
-
-
-
-
 
 
 
