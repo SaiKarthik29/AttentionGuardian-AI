@@ -1,0 +1,32 @@
+{
+  "manifest_version": 3,
+  "name": "Attention Guardian",
+  "version": "1.0",
+  "description": "Replaces distracting ads with AI educational content.",
+
+  "permissions": ["storage"],
+
+  "host_permissions": [
+    "*://*.youtube.com/*",
+    "*://*.geeksforgeeks.org/*",
+    "*://*.w3schools.com/*",
+    "*://*.javatpoint.com/*",
+    "http://localhost/*",
+    "http://127.0.0.1/*"
+  ],
+
+  "content_scripts": [
+    {
+      "matches": [
+        "*://*.youtube.com/*",
+        "*://*.geeksforgeeks.org/*",
+        "*://*.w3schools.com/*",
+        "*://*.javatpoint.com/*",
+        "http://localhost/*",
+        "http://127.0.0.1/*"
+      ],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}
