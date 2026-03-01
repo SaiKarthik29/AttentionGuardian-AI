@@ -183,8 +183,6 @@ async function createStudyCard() {
   const topic = getTopic();
   const concept = detectAIConcept() || getConcept();
 
-  let selectedTip = "Loading AI tip...";
-
 let selectedTip = "Loading AI tip...";
 
 try {
