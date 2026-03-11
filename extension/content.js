@@ -490,6 +490,89 @@ function initYouTubeAdObserver() {
 setInterval(initYouTubeAdObserver, 1500);
 
 
+
+
+
+
+/* ===============================
+   OFFLINE QUIZ BANK
+=============================== */
+
+const offlineQuizzes = [
+
+{
+question: "What is the time complexity of Binary Search?",
+options: ["O(n)", "O(log n)", "O(n²)", "O(1)"],
+answerIndex: 1,
+explanation: "Binary search halves the search space each step."
+},
+
+{
+question: "Which data structure uses FIFO?",
+options: ["Stack", "Queue", "Tree", "Graph"],
+answerIndex: 1,
+explanation: "Queue follows First In First Out."
+},
+
+{
+question: "Which data structure uses LIFO?",
+options: ["Queue", "Stack", "Heap", "Tree"],
+answerIndex: 1,
+explanation: "Stack follows Last In First Out."
+},
+
+{
+question: "Which traversal visits Left → Root → Right?",
+options: ["Preorder", "Postorder", "Inorder", "Level Order"],
+answerIndex: 2,
+explanation: "Inorder traversal visits Left → Root → Right."
+},
+
+{
+question: "Which sorting algorithm has average complexity O(n log n)?",
+options: ["Bubble Sort", "Quick Sort", "Selection Sort", "Insertion Sort"],
+answerIndex: 1,
+explanation: "Quick Sort performs O(n log n) on average."
+},
+
+{
+question: "Which data structure is used in recursion?",
+options: ["Queue", "Stack", "Graph", "Heap"],
+answerIndex: 1,
+explanation: "Recursive calls are stored in the call stack."
+},
+
+{
+question: "Which algorithm explores graph level by level?",
+options: ["DFS", "BFS", "Binary Search", "Heap Sort"],
+answerIndex: 1,
+explanation: "Breadth First Search explores nodes level by level."
+},
+
+{
+question: "Which algorithm divides array into halves repeatedly?",
+options: ["Merge Sort", "Bubble Sort", "Insertion Sort", "Selection Sort"],
+answerIndex: 0,
+explanation: "Merge sort uses divide and conquer."
+},
+
+{
+question: "Which structure stores key-value pairs efficiently?",
+options: ["Array", "Hash Table", "Stack", "Queue"],
+answerIndex: 1,
+explanation: "Hash tables provide fast lookup."
+},
+
+{
+question: "Which algorithm finds shortest path in weighted graphs?",
+options: ["DFS", "BFS", "Dijkstra", "Binary Search"],
+answerIndex: 2,
+explanation: "Dijkstra algorithm finds shortest path."
+}
+
+];
+
+
 /* ===============================
    AI QUIZ FETCH (LOCAL SERVER + RANDOM DIFFICULTY)
 =============================== */
@@ -587,19 +670,17 @@ async function showQuizOverlay() {
 
   let quiz = await fetchAIQuiz();
 
-  const question =
-    quiz?.question ||
-    "What is the time complexity of Binary Search?";
+// ⭐ OFFLINE RANDOM QUIZ
+if (!quiz) {
+  quiz = offlineQuizzes[
+    Math.floor(Math.random() * offlineQuizzes.length)
+  ];
+}
 
-  const options =
-    quiz?.options || ["O(n)", "O(log n)", "O(n²)"];
-
-  const answerIndex =
-    quiz?.answerIndex ?? 1;
-
-  const explanation =
-    quiz?.explanation ||
-    "Binary Search halves the search space each step → O(log n)";
+const question = quiz.question;
+const options = quiz.options;
+const answerIndex = quiz.answerIndex;
+const explanation = quiz.explanation;
 
   modal.innerHTML = `
     <div style="font-size:22px;font-weight:600;margin-bottom:14px;">
